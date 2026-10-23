@@ -53,10 +53,13 @@ UA = {"User-Agent": "Nivl-MINIS-meteogram (research; python-requests)"}
 SITES = {
     "Depot 43D": (-70.1435, 12.0032),             # Indian depot at the Nivlisen ice front
     "MN_04": (-70.1636, 10.2161),                 # base point MN_04, west end of the MINIS route
-    "Grounding zone GZ-A": (-70.3479, 12.4681),   # centre of the GZ-A seismic layout
-    "Potsdam shear margin SM-A": (-70.8434, 12.2981),  # centre of the SM-A seismic layout
+    "C13 (grounding zone)": (-70.3479, 12.4681),  # centre of the GZ-A seismic layout; route waypoint C13 0.7 km
+    "A12 (Potsdam shear margin)": (-70.8434, 12.2981),  # centre of the SM-A seismic layout; route waypoint A12 0.5 km
     "Maitri": (-70.7667, 11.7333),
 }
+
+# file names (slugs) kept from the earlier site names (renamed 2026-10-23 after the route waypoints)
+SLUGS = {"C13 (grounding zone)": "grounding_zone_gz_a", "A12 (Potsdam shear margin)": "potsdam_shear_margin_sm_a"}
 
 # (name, GRIB var, level string in .idx)
 FIELDS = [("t2", "TMP", "2 m above gnd"), ("rh2", "RH", "2 m above gnd"),
@@ -272,7 +275,7 @@ def default_sites():
     s = dict(SITES)
     try:
         g = json.load(open(ROOT / "outputs" / "field" / "minis_passive_seismic.geojson"))
-        for key, lay in [("Grounding zone GZ-A", "GZ-A"), ("Potsdam shear margin SM-A", "SM-A")]:
+        for key, lay in [("C13 (grounding zone)", "GZ-A"), ("A12 (Potsdam shear margin)", "SM-A")]:
             pts = [f["geometry"]["coordinates"] for f in g["features"] if f["properties"].get("layout") == lay]
             s[key] = (float(np.mean([p[1] for p in pts])), float(np.mean([p[0] for p in pts])))
     except Exception:
@@ -594,7 +597,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     meta = []
     for n, rows in series.items():
-        slug = re.sub(r"[^A-Za-z0-9]+", "_", n).strip("_").lower()
+        slug = SLUGS.get(n) or re.sub(r"[^A-Za-z0-9]+", "_", n).strip("_").lower()
         with open(OUT / ("%s_%s.csv" % (cycle, slug)), "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=[k for k in rows[0] if k not in ("u", "v", "prof")], extrasaction="ignore")
             w.writeheader()

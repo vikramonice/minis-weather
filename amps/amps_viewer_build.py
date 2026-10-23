@@ -67,6 +67,10 @@ WEB_HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
             '[hidden]{display:none!important}</style></head><body>')
 
 
+# display names by slug, applied to every stored run (sites renamed 2026-10-23 after the route waypoints)
+NAMES = {v: k for k, v in {"C13 (grounding zone)": "grounding_zone_gz_a", "A12 (Potsdam shear margin)": "potsdam_shear_margin_sm_a"}.items()}
+
+
 def rank(s):
     return ORDER.index(s["slug"]) if s["slug"] in ORDER else 99
 
@@ -75,6 +79,8 @@ def build():
     runs = load()
     for r in runs:                                  # same site order for old and new runs
         r["sites"] = sorted(r["sites"], key=rank)
+        for s in r["sites"]:
+            s["name"] = NAMES.get(s["slug"], s["name"])
     VIEW.mkdir(parents=True, exist_ok=True)
     data = json.dumps(runs, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
     mp = MAP_JSON.read_text() if MAP_JSON.exists() else "{}"
