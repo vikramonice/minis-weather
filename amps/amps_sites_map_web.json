@@ -10,27 +10,38 @@
   {
    "name": "Maitri",
    "fx": 0.4984691359443318,
-   "fy": 0.7751347123116509
+   "fy": 0.7751347123116509,
+   "elev_m": 125,
+   "sea_km": 79.9
   },
   {
    "name": "A12 (Potsdam shear margin)",
    "fx": 0.6730768700342253,
-   "fy": 0.8905306469625835
+   "fy": 0.8905306469625835,
+   "elev_m": 329,
+   "sea_km": 85.4
   },
   {
    "name": "C13 (grounding zone)",
    "fx": 0.8432290007751918,
-   "fy": 0.41137530493204566
+   "fy": 0.41137530493204566,
+   "elev_m": 23,
+   "sea_km": 30.3
   },
   {
    "name": "Depot 43D",
    "fx": 0.726813636160723,
-   "fy": 0.17444543218816716
+   "fy": 0.17444543218816716,
+   "elev_m": 35,
+   "sea_km": 13.2
   },
   {
    "name": "MN_04",
    "fx": 0.09407813362825666,
-   "fy": 0.07554023361851207
+   "fy": 0.07554023361851207,
+   "elev_m": 50,
+   "sea_km": 21.6
   }
- ]
+ ],
+ "elev_note": "Elevation: Bedmap3 surface (m above sea level). Distance to sea: shortest straight line to the Bedmap3 ice front or coast (approximate; the front moves)."
 }

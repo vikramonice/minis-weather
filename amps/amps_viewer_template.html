@@ -110,6 +110,21 @@ figcaption { font-size: 0.85rem; color: #5b6b78; padding: 6px 10px; border-top: 
 .csvbox textarea { width: 100%; box-sizing: border-box; font: 12px/1.4 ui-monospace, Consolas, monospace;
   background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
 a.btn { text-decoration: none; display: inline-block; }
+.sitetab { width: 100%; max-width: 360px; margin: 8px auto 0; border-collapse: collapse; font-size: 0.85rem; }
+.sitetab th, .sitetab td { padding: 3px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+.sitetab th { font-weight: 500; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.sitetab td.n { text-align: right; font-family: var(--font-data); white-space: nowrap; }
+.sitetab .no { font-family: var(--font-data); color: var(--ice); }
+.flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-width: 720px; }
+.flow li { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: start; padding-bottom: 22px; }
+.flow li:last-child { padding-bottom: 0; }
+.flow li::after { content: ""; position: absolute; left: 19px; top: 40px; bottom: 2px; border-left: 2px dashed var(--line); }
+.flow li:last-child::after { display: none; }
+.flow .ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-size: 1.2rem;
+  background: var(--ice-soft); border: 1px solid var(--ice); }
+.flow h3 { margin: 2px 0 2px; font-size: 1rem; font-weight: 600; }
+.flow p { margin: 0; font-size: 0.92rem; color: var(--muted); max-width: 62ch; }
+.flow .when { font-family: var(--font-data); font-size: 0.8rem; color: var(--ice); }
 details.fold > summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 8px;
   font-size: 0.95rem; font-weight: 600; color: var(--ice); padding: 4px 0; }
 details.fold > summary::-webkit-details-marker { display: none; }
@@ -170,6 +185,11 @@ footer { font-size: 0.82rem; color: var(--muted); }
         <span class="sw" style="background:#38d9a9;height:8px"></span>terminal lake &middot;
         <span class="sw" style="background:#a5d8ff"></span>ice shelf outline &middot;
         + AMPS 8&nbsp;km grid node; the ring marks the node each meteogram is read from. Map 106&nbsp;&times;&nbsp;110&nbsp;km on the NISAR radar mosaic; true north points down and to the left.</p>
+      <table class="sitetab" id="sitetab" hidden>
+        <thead><tr><th>Site</th><th class="n">Elevation</th><th class="n">To the sea</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="maplegend" id="sitetab-note"></p>
     </details>
   </div>
 
@@ -227,6 +247,32 @@ footer { font-size: 0.82rem; color: var(--muted); }
     <div><h2>Pressure</h2><p>Sea-level pressure. Red shading marks a fall of 4&nbsp;hPa or more in 12&nbsp;h, often the first sign of a storm or rising wind.</p></div>
   </section>
 
+  <details class="fold" id="how-fold">
+    <summary>How this page works <span class="hint">where the numbers come from</span></summary>
+    <div class="foldbody">
+      <ol class="flow">
+        <li><span class="ic" aria-hidden="true">&#127757;</span><div><h3>1. The weather model: AMPS</h3>
+          <p>The Antarctic Mesoscale Prediction System (NCAR, for the US Antarctic Program) runs a weather model tuned for
+          Antarctica on an 8&nbsp;km grid, twice a day, and forecasts 5 days ahead. It is the model most Antarctic forecasters use.</p>
+          <span class="when">new runs at 00 and 12 UTC, online about 10 h later</span></div></li>
+        <li><span class="ic" aria-hidden="true">&#9201;</span><div><h3>2. An automatic job collects it</h3>
+          <p>Four times a day a small program on GitHub checks for a new run and downloads only the numbers for the grid point
+          nearest each of our five sites (a few hundred kB, not the gigabytes of the full model).</p>
+          <span class="when">00:45 &middot; 10:45 &middot; 12:45 &middot; 22:45 UTC</span></div></li>
+        <li><span class="ic" aria-hidden="true">&#128200;</span><div><h3>3. Charts and plain-language guidance</h3>
+          <p>For each site it draws the meteogram (temperature, cloud, snow, wind, pressure) and writes the guidance by fixed rules
+          from the <i>Antarctic Weather Forecasting Handbook</i>: drifting snow, whiteout risk, storm patterns, falling pressure.
+          It also compares each day with the previous run: a hazard seen in both runs is more trustworthy.</p></div></li>
+        <li><span class="ic" aria-hidden="true">&#128269;</span><div><h3>4. A check against real weather</h3>
+          <p>It fetches the 6-hourly reports from Maitri and Novolazarevskaya stations (via Ogimet) and compares them with what AMPS
+          forecast, so you can see how far to trust it, for example "AMPS runs about 3&nbsp;&deg;C too cold".</p></div></li>
+        <li><span class="ic" aria-hidden="true">&#128241;</span><div><h3>5. This page</h3>
+          <p>The last 8 runs (4 days) are published here, for any phone or laptop. For a second opinion, each site links to the
+          same point on meteoblue (global models, coarser than AMPS). The model is guidance, not a forecast: what you see on site comes first.</p></div></li>
+      </ol>
+    </div>
+  </details>
+
   <footer>Data: Antarctic Mesoscale Prediction System (AMPS), NCAR, run for NSF. Values are taken from the nearest 8&nbsp;km grid point. Model guidance only, not a forecast: gusts are stronger than the mean wind, and conditions on the spot come first.</footer>
 </div>
 
@@ -250,6 +296,25 @@ footer { font-size: 0.82rem; color: var(--muted); }
     return null;
   }
   try { $("mapbox").open = window.matchMedia("(min-width: 760px)").matches; } catch (e) { $("mapbox").open = true; }
+  (function siteTable() {
+    var rows = map.sites.filter(function (m) { return m.elev_m != null; });
+    if (!rows.length) return;
+    var tb = $("sitetab").querySelector("tbody");
+    rows.forEach(function (m, i) {
+      var tr = document.createElement("tr");
+      [["no", String(map.sites.indexOf(m) + 1) + "\u2002" + m.name], ["n", m.elev_m + " m"],
+       ["n", "\u2248 " + Math.round(m.sea_km) + " km"]].forEach(function (c, k) {
+        var td = document.createElement("td");
+        if (k === 0) { var b = document.createElement("span"); b.className = "no"; b.textContent = String(map.sites.indexOf(m) + 1);
+          td.appendChild(b); td.appendChild(document.createTextNode("\u2002" + m.name)); }
+        else { td.className = c[0]; td.textContent = c[1]; }
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    $("sitetab").hidden = false;
+    $("sitetab-note").textContent = map.elev_note || "";
+  })();
 
   function cycleDate(c) {
     return new Date(Date.UTC(+c.slice(0, 4), +c.slice(4, 6) - 1, +c.slice(6, 8), +c.slice(8, 10)));
@@ -582,7 +647,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
   }
 
   // folded sections remember their state on this device
-  ["g-fold", "v-fold"].forEach(function (id) {
+  ["g-fold", "v-fold", "how-fold"].forEach(function (id) {
     var d = $(id);
     try { if (localStorage.getItem("minis-" + id) === "open") d.open = true; } catch (e) {}
     d.addEventListener("toggle", function () { try { localStorage.setItem("minis-" + id, d.open ? "open" : "closed"); } catch (e) {} });

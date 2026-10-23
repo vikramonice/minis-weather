@@ -13,6 +13,17 @@ station reports. Charts (PNG) and numbers (CSV) can be downloaded.
 Model guidance only, not a forecast: gusts are stronger than the mean wind, and conditions on the
 spot come first.
 
+## How it works
+
+```mermaid
+flowchart TD
+  A["AMPS weather model (NCAR)<br/>8 km Antarctic grid, runs 00 and 12 UTC, 5-day forecast"] --> B
+  B["GitHub Actions job, 4 x a day<br/>downloads only the grid points nearest our 5 sites (a few hundred kB)"] --> C
+  C["Charts + plain-language guidance<br/>rules from the Antarctic Weather Forecasting Handbook;<br/>each day compared with the previous run"] --> E
+  D["Maitri + Novolazarevskaya station reports (Ogimet)"] --> V["Check: how far AMPS was off"] --> E
+  E["This website: last 8 runs (4 days)<br/>charts, numbers (CSV), guidance, link to meteoblue"] --> F["You, on phone or laptop<br/>(what you see on site comes first)"]
+```
+
 ## How it updates
 
 A GitHub Actions workflow (`.github/workflows/update.yml`) runs at 00:45, 10:45, 12:45 and
