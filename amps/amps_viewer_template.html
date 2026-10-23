@@ -75,6 +75,7 @@ h1 { margin: 0; font-size: 1.7rem; font-weight: 600; letter-spacing: 0.01em; tex
 .ghead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
 .ghead h2 { margin: 0; font-size: 1.15rem; font-weight: 600; }
 .made { font-family: var(--font-data); font-size: 0.8rem; color: var(--muted); }
+.gsub { margin-top: -6px; font-style: italic; }
 .headline { margin: 0; font-size: 1rem; font-weight: 500; }
 .disclaimer { margin: 0; font-size: 0.85rem; color: var(--muted); }
 .days { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 10px; }
@@ -203,11 +204,12 @@ footer { font-size: 0.82rem; color: var(--muted); }
     <div class="scroller" id="scroller"><img id="img" alt=""></div>
     <figcaption>Tap the chart to zoom; scroll sideways when zoomed. Times are UTC (IST = UTC + 5:30).</figcaption>
   </figure>
-  <div class="empty" id="nochart" hidden>The chart for this older run was not kept (it predates this page); its numbers and guidance are below.</div>
+  <div class="empty" id="nochart" hidden>The chart for this older run was not kept (it predates this page); its numbers and field weather notes are below.</div>
   <div class="empty" id="empty" hidden>No forecast runs have been added yet. New runs appear here after each update.</div>
 
   <section class="guidance" id="guidance" aria-labelledby="g-title" hidden>
-    <div class="ghead"><h2 id="g-title">Model guidance</h2><span class="made" id="g-made"></span></div>
+    <div class="ghead"><h2 id="g-title">Field weather notes</h2><span class="made" id="g-made"></span></div>
+    <p class="disclaimer gsub">the meteogram in words: hazards, wind, snow and cloud for each day</p>
     <p class="headline" id="g-head"></p>
     <p class="disclaimer" id="g-site"></p>
     <details class="fold" id="g-fold">
@@ -233,7 +235,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
 
   <div class="actions">
     <button class="btn" id="dl-png" type="button">Download chart (PNG)</button>
-    <button class="btn" id="dl-guide" type="button" hidden>Download chart + guidance (PNG)</button>
+    <button class="btn" id="dl-guide" type="button" hidden>Download chart + notes (PNG)</button>
     <button class="btn ghost" id="dl-csv" type="button">Download numbers (CSV)</button>
     <a class="btn" id="open-png" href="#" target="_blank" rel="noopener" hidden>Open chart full size</a>
     <button class="btn ghost" id="show-csv" type="button" aria-expanded="false" hidden>Show numbers (CSV)</button>
@@ -248,7 +250,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
     <div><h2>Temperature</h2><p>Red line: air temperature at 2&nbsp;m with daily highs and lows. Blue dashes: wind chill, what exposed skin feels. Symbols every 6&nbsp;h: clear, cloud or snow.</p></div>
     <div><h2>Cloud and snow</h2><p>Grey: layers where the air is saturated over ice, so cloud is likely, by altitude (right scale). Orange ticks: model cloud base. Blue bars: snowfall as mm of water per 3&nbsp;h (about 1&nbsp;cm of fresh snow per mm).</p></div>
     <div><h2>Wind</h2><p>Speed at 10&nbsp;m in m/s (left) and knots (right). Arrows point where the wind blows to; letters give where it comes from. Dashed lines mark strong (10&nbsp;m/s) and gale (15&nbsp;m/s). AMPS publishes no gusts.</p></div>
-    <div><h2>Model guidance</h2><p>Written by fixed rules from the AMPS numbers, not by a forecaster. Rules follow the <i>International Antarctic Weather Forecasting Handbook</i> (Turner &amp; Pendlebury 2004), section on Maitri and Dakshin Gangotri. Amber: drifting snow (mean wind 20&nbsp;kt or more, 14&nbsp;kt on fresh snow), snow of 0.5&nbsp;mm or more, thick low cloud (poor contrast and horizon), a storm pattern, or pressure falling fast. Red: blowing snow (35&nbsp;kt or more) or whiteout risk (thick cloud with snow or drift). &ldquo;Last run&rdquo; compares the day with the previous AMPS run: a hazard seen in both runs is more trustworthy than one that just appeared.</p></div>
+    <div><h2>Field weather notes</h2><p>The meteogram in words, written automatically by fixed rules from the AMPS numbers, not by a forecaster. Rules follow the <i>International Antarctic Weather Forecasting Handbook</i> (Turner &amp; Pendlebury 2004), section on Maitri and Dakshin Gangotri. Amber: drifting snow (mean wind 20&nbsp;kt or more, 14&nbsp;kt on fresh snow), snow of 0.5&nbsp;mm or more, thick low cloud (poor contrast and horizon), a storm pattern, or pressure falling fast. Red: blowing snow (35&nbsp;kt or more) or whiteout risk (thick cloud with snow or drift). &ldquo;Last run&rdquo; compares the day with the previous AMPS run: a hazard seen in both runs is more trustworthy than one that just appeared.</p></div>
     <div><h2>AMPS against the station reports</h2><p>Every update compares what this page showed with the 6-hourly reports from Maitri and Novolazarevskaya. The bias tells you how to read the meteogram: for example, if AMPS has run 2&nbsp;°C too cold at night, expect nights about 2&nbsp;°C warmer than shown. It builds up through the season.</p></div>
     <div><h2>Pressure</h2><p>Sea-level pressure. Red shading marks a fall of 4&nbsp;hPa or more in 12&nbsp;h, often the first sign of a storm or rising wind.</p></div>
   </section>
@@ -262,11 +264,11 @@ footer { font-size: 0.82rem; color: var(--muted); }
           Antarctica on an 8&nbsp;km grid, twice a day, and forecasts 5 days ahead. It is the model most Antarctic forecasters use.</p>
           <span class="when">new runs at 00 and 12 UTC, online about 10 h later</span></div></li>
         <li><span class="ic" aria-hidden="true">&#9201;</span><div><h3>2. An automatic job collects it</h3>
-          <p>Four times a day a small program on GitHub checks for a new run and downloads only the numbers for the grid point
+          <p>Every 30 minutes while a new run is due, a small program on GitHub checks for it and downloads only the numbers for the grid point
           nearest each of our five sites (a few hundred kB, not the gigabytes of the full model).</p>
-          <span class="when">00:45 &middot; 10:45 &middot; 12:45 &middot; 22:45 UTC</span></div></li>
-        <li><span class="ic" aria-hidden="true">&#128200;</span><div><h3>3. Charts and plain-language guidance</h3>
-          <p>For each site it draws the meteogram (temperature, cloud, snow, wind, pressure) and writes the guidance by fixed rules
+          <span class="when">every 30 min, 09:00&ndash;12:00 and 21:00&ndash;00:30 UTC; new runs appear within about half an hour</span></div></li>
+        <li><span class="ic" aria-hidden="true">&#128200;</span><div><h3>3. Charts and field weather notes</h3>
+          <p>For each site it draws the meteogram (temperature, cloud, snow, wind, pressure) and writes the field weather notes (the meteogram in words) by fixed rules
           from the <i>Antarctic Weather Forecasting Handbook</i>: drifting snow, whiteout risk, storm patterns, falling pressure.
           It also compares each day with the previous run: a hazard seen in both runs is more trustworthy.</p></div></li>
         <li><span class="ic" aria-hidden="true">&#128269;</span><div><h3>4. A check against real weather</h3>
@@ -274,12 +276,12 @@ footer { font-size: 0.82rem; color: var(--muted); }
           forecast, so you can see how far to trust it, for example "AMPS runs about 3&nbsp;&deg;C too cold".</p></div></li>
         <li><span class="ic" aria-hidden="true">&#128241;</span><div><h3>5. This page</h3>
           <p>The last 8 runs (4 days) are published here, for any phone or laptop. For a second opinion, each site links to the
-          same point on meteoblue (global models, coarser than AMPS). The model is guidance, not a forecast: what you see on site comes first.</p></div></li>
+          same point on meteoblue (global models, coarser than AMPS). The model is a guide, not a forecast: what you see on site comes first.</p></div></li>
       </ol>
     </div>
   </details>
 
-  <footer>Data: Antarctic Mesoscale Prediction System (AMPS), NCAR, run for NSF. Values are taken from the nearest 8&nbsp;km grid point. Model guidance only, not a forecast: gusts are stronger than the mean wind, and conditions on the spot come first.</footer>
+  <footer>Data: Antarctic Mesoscale Prediction System (AMPS), NCAR, run for NSF. Values are taken from the nearest 8&nbsp;km grid point. Model output only, not a forecast: gusts are stronger than the mean wind, and conditions on the spot come first.</footer>
 </div>
 
 <script id="runs" type="application/json">__RUNS__</script>
@@ -333,7 +335,13 @@ footer { font-size: 0.82rem; color: var(--muted); }
     var h = (Date.now() - cycleDate(c).getTime()) / 3.6e6;
     if (h < 0) return { t: "run time in the future", old: true };
     var d = Math.floor(h / 24), hh = Math.round(h - d * 24);
-    return { t: "run is " + (d ? d + " d " : "") + hh + " h old", old: h > 36 };
+    return { t: "issued " + (d ? d + " d " : "") + hh + " h ago", old: h > 36 };
+  }
+  // AMPS runs start at 00 and 12 UTC and are online about 10 h later (09:20-10:40 / 21:25-22:10 UTC)
+  function nextDue(latest) {
+    var due = new Date(cycleDate(latest).getTime() + 22 * 3.6e6);
+    var late = Date.now() > due.getTime() + 1.5 * 3.6e6;
+    return (late ? "next run late (due" : "next run due") + " \u2248 " + String(due.getUTCHours()).padStart(2, "0") + " UTC" + (late ? ")" : "");
   }
   function current() {
     var r = runs[state.run];
@@ -392,7 +400,8 @@ footer { font-size: 0.82rem; color: var(--muted); }
     }
     sel.value = String(state.run);
     var a = ageText(cur.run.cycle);
-    $("age").textContent = a.t; $("age").className = "age" + (a.old ? " old" : "");
+    $("age").textContent = a.t + (state.run === 0 ? " \u00b7 " + nextDue(runs[0].cycle) : "");
+    $("age").className = "age" + (a.old ? " old" : "");
     $("coords").textContent = cur.site.name + ": AMPS grid point " + cur.site.dist_km.toFixed(1) + " km away";
     var z = 0;                                     // model ground height (m) for meteoblue's altitude
     try {
@@ -419,7 +428,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
     $("g-made").textContent = "written " + g.made + " UTC from this run";
     $("g-head").textContent = g.headline;
     $("g-site").textContent = g.site_note || ""; $("g-site").hidden = !g.site_note;
-    $("g-disc").textContent = (g.disclaimer || "").replace('Check the latest run and look outside.', 'Use the newest run, and trust what you see on site over the model.');
+    $("g-disc").textContent = (g.disclaimer || "").replace("AMPS model guidance written by fixed rules, not a forecaster's forecast.", 'Written automatically by fixed rules from the AMPS numbers, not by a forecaster.').replace('Check the latest run and look outside.', 'Use the newest run, and trust what you see on site over the model.');
     var days = $("g-days"); days.textContent = "";
     g.days.forEach(function (d) {
       var c = document.createElement("article"); c.className = "day";
@@ -579,7 +588,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
       }
       if (draw) { ctx.fillStyle = C.line; ctx.fillRect(pad, img.height + 10, W - 2 * pad, 2); }
       y += 10;
-      para("Model guidance - " + title, "600 30px " + F, C.ink, pad, W - 2 * pad, 38);
+      para("Field weather notes - " + title, "600 30px " + F, C.ink, pad, W - 2 * pad, 38);
       para("written " + g.made + " UTC from this run", "20px " + F, C.muted, pad, W - 2 * pad, 28);
       y += 8;
       para(g.headline, "600 23px " + F, C.ink, pad, W - 2 * pad, 31);
@@ -634,7 +643,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
       var img = await loadImage(c.site.png);
       var cv = composeGuidance(img, c.site.summary, c.site.name + ", AMPS run " + runLabel(c.run.cycle));
       var blob = await new Promise(function (ok) { cv.toBlob(ok, "image/png"); });
-      await save(fileBase() + "_guidance.png", blob);
+      await save(fileBase() + "_notes.png", blob);
     } catch (e) { $("status").textContent = "Could not build the image for download."; }
   });
   $("dl-csv").addEventListener("click", function () {

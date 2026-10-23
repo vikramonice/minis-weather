@@ -271,7 +271,7 @@ def summarise(cycle, slug, start):
     note = SITE_NOTE["shelf"] if slug in SHELF else SITE_NOTE["katabatic"] if slug in KATABATIC else ""
     return dict(cycle=cycle, site=slug, made=start.strftime("%Y-%m-%d %H:%M"), headline=head, site_note=note,
                 days=days,
-                disclaimer="AMPS model guidance written by fixed rules, not a forecaster's forecast. Rules follow the "
+                disclaimer="Written automatically by fixed rules from the AMPS numbers, not by a forecaster. Rules follow the "
                            "International Antarctic Weather Forecasting Handbook (Turner & Pendlebury 2004). "
                            "Mean wind only: gusts are stronger. Use the newest run, and trust what you see on site over the model.")
 

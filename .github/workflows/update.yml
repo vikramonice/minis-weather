@@ -2,9 +2,13 @@ name: Update meteograms
 
 on:
   schedule:
-    # AMPS 00 and 12 UTC runs reach the UCAR server about 10 h later; the 2 h later slots
-    # catch a late run (an up-to-date check exits in seconds).
-    - cron: "45 10,12,22,0 * * *"
+    # AMPS 00 and 12 UTC runs finish on the UCAR server about 10 h later (seen 09:20-10:40 and
+    # 21:25-22:10 UTC). Check every 30 min through those windows; a check with nothing new exits
+    # in seconds and commits nothing.
+    - cron: "0,30 9-11 * * *"
+    - cron: "0 12 * * *"
+    - cron: "0,30 21-23 * * *"
+    - cron: "0,30 0 * * *"
   workflow_dispatch:
     inputs:
       rebuild:
