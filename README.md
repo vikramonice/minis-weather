@@ -5,8 +5,8 @@ Antarctica), from the Antarctic Mesoscale Prediction System (AMPS, NCAR; WRF 8 k
 
 **Site:** https://vikramonice.github.io/minis-weather/
 
-For each of five sites (Depot 43D, MN_04, grounding zone GZ-A, Potsdam shear margin SM-A,
-Maitri) the page shows a meteogram (temperature, wind chill, cloud, snow, wind, pressure),
+For each of five sites along the route (Maitri, A12 at the Potsdam shear margin, C13 in the
+grounding zone, Depot 43D, MN_04) the page shows a meteogram (temperature, wind chill, cloud, snow, wind, pressure),
 rule-based guidance text, and a running check of AMPS against the Maitri and Novolazarevskaya
 station reports. Charts (PNG) and numbers (CSV) can be downloaded.
 
