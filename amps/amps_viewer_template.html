@@ -1,0 +1,565 @@
+<title>MINIS Meteograms</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column - site picker, run picker, the meteogram, then actions and a short reading guide */
+:root {
+  --bg: #f3f6f8;
+  --surface: #ffffff;
+  --ink: #17232e;
+  --muted: #5b6b78;
+  --line: #d5dde3;
+  --ice: #1f5f8b;          /* accent: AMPS-ish polar blue */
+  --ice-soft: #dbe9f3;
+  --warn: #b5470b;
+  --amber: #b07800;
+  --font-ui: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f161c; --surface: #17212a; --ink: #e3ebf1; --muted: #93a4b2; --line: #2a3843;
+  --ice: #7fbde6; --ice-soft: #1d3446; --warn: #f0a070; --amber: #e2b23c; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f161c; --surface: #17212a; --ink: #e3ebf1; --muted: #93a4b2; --line: #2a3843;
+  --ice: #7fbde6; --ice-soft: #1d3446; --warn: #f0a070; --amber: #e2b23c; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 16px; line-height: 1.45; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+h1 { margin: 0; font-size: 1.7rem; font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 0.95rem; }
+.label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
+.top { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 760px) { .top { grid-template-columns: minmax(0, 1fr) 300px; } }
+.controls { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.sites { display: grid; gap: 6px; }
+.site { font: inherit; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 2px 10px; align-items: center;
+  text-align: left; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); cursor: pointer; }
+.site .num { grid-row: span 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--font-data); font-size: 0.8rem; border: 1.5px solid var(--ice); color: var(--ice); }
+.site .nm { font-size: 1rem; font-weight: 500; }
+.site .ll { font-family: var(--font-data); font-size: 0.78rem; color: var(--muted); overflow-wrap: anywhere; }
+.site[aria-pressed="true"] { border-color: var(--ice); background: var(--ice-soft); }
+.site[aria-pressed="true"] .num { background: var(--ice); color: var(--bg); }
+
+details.map summary { cursor: pointer; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); padding: 2px 0 8px; }
+.mapframe { position: relative; max-width: 360px; margin: 0 auto; border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--line); background: #222; }
+.mapframe img { display: block; width: 100%; height: auto; }
+.pin { position: absolute; transform: translate(-50%, -50%); width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid #111; background: #ffd43b; color: #111; font: 600 0.72rem/1 var(--font-data);
+  display: grid; place-items: center; cursor: pointer; padding: 0; }
+.pin[aria-pressed="true"] { width: 28px; height: 28px; background: #fff; border-color: #ffd43b; box-shadow: 0 0 0 3px #111; z-index: 1; }
+.pin .tag { position: absolute; left: 50%; top: calc(100% + 5px); transform: translateX(-50%); white-space: nowrap;
+  font: 500 0.78rem/1.2 var(--font-ui); background: rgba(17, 17, 17, 0.85); color: #fff; padding: 2px 6px; border-radius: 4px;
+  pointer-events: none; }
+.pin[aria-pressed="false"] .tag { display: none; }
+.pin.east .tag { left: auto; right: -4px; transform: none; }
+.maplegend { font-size: 0.8rem; color: var(--muted); max-width: 360px; margin: 6px auto 0; }
+.sw { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 4px; }
+.site:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
+
+.bar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.bar select { font: inherit; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.age { font-family: var(--font-data); font-size: 0.85rem; padding: 3px 8px; border-radius: 4px; background: var(--ice-soft); color: var(--ink); }
+.age.old { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+.coords { font-family: var(--font-data); font-size: 0.85rem; color: var(--muted); }
+
+.guidance { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
+  display: grid; gap: 12px; min-width: 0; }
+.ghead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.ghead h2 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.made { font-family: var(--font-data); font-size: 0.8rem; color: var(--muted); }
+.headline { margin: 0; font-size: 1rem; font-weight: 500; }
+.disclaimer { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.days { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 10px; }
+.day { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px 8px; min-width: 0; }
+.day h3 { margin: 0 0 6px; font-size: 1rem; font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.day .note { font-size: 0.75rem; font-weight: 400; color: var(--muted); }
+.item { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 8px; padding: 4px 0 4px 8px;
+  border-left: 3px solid transparent; font-size: 0.92rem; }
+.item .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding-top: 3px; }
+.item.watch { border-left-color: var(--amber); }
+.item.warn { border-left-color: var(--warn); }
+.item.warn .k, .item.watch .k { color: var(--ink); font-weight: 600; }
+
+.verify { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
+  display: grid; gap: 10px; min-width: 0; }
+.verify h2 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.vstats { margin: 0; padding-left: 18px; font-size: 0.95rem; }
+.vstats li { margin: 2px 0; }
+.vchart { width: 100%; height: auto; display: block; color: var(--muted); }
+.vlegend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.85rem; color: var(--muted); }
+.vlegend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+
+figure { margin: 0; background: #f9f9f9; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.scroller { overflow-x: auto; }
+.scroller img { display: block; width: 100%; height: auto; cursor: zoom-in; }
+.scroller.zoom img { width: 1430px; max-width: none; cursor: zoom-out; }
+figcaption { font-size: 0.85rem; color: #5b6b78; padding: 6px 10px; border-top: 1px solid #e3e3e3; background: #f9f9f9; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.csvbox { margin: 8px 0 16px; }
+.csvbox textarea { width: 100%; box-sizing: border-box; font: 12px/1.4 ui-monospace, Consolas, monospace;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+a.btn { text-decoration: none; display: inline-block; }
+.btn { font: inherit; font-weight: 500; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--ice);
+  background: var(--ice); color: var(--bg); cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ice); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.status { font-size: 0.9rem; color: var(--muted); min-height: 1.2em; }
+
+.guide { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px;
+  border-top: 1px solid var(--line); padding-top: 14px; }
+.guide div { min-width: 0; }
+.guide h2 { font-size: 0.95rem; margin: 0 0 3px; font-weight: 600; }
+.guide p { margin: 0; color: var(--muted); font-size: 0.92rem; max-width: 62ch; }
+.empty { padding: 40px 16px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; }
+footer { font-size: 0.82rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .site, .btn { transition: background-color .15s, color .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>MINIS Meteograms</h1>
+    <span class="sub">Nivlisen and Maitri &middot; AMPS WRF 8&nbsp;km forecasts, 5 days</span>
+  </header>
+
+  <div class="top">
+    <div class="controls">
+      <div class="bar">
+        <label class="label" for="run">Model run</label>
+        <select id="run"></select>
+        <span class="age" id="age"></span>
+      </div>
+      <div>
+        <div class="label" id="sites-label">Site</div>
+        <div class="sites" id="sites" role="group" aria-labelledby="sites-label"></div>
+      </div>
+      <span class="coords" id="coords"></span>
+    </div>
+    <details class="map" id="mapbox">
+      <summary>Site map</summary>
+      <div class="mapframe" id="mapframe">
+        <img src="__MAP_SRC__" alt="Map of Nivlisen and Schirmacher Oasis with the five meteogram sites on the NISAR radar mosaic" width="960" height="996">
+      </div>
+      <p class="maplegend"><span class="sw" style="background:#ff8787"></span>43D&ndash;Maitri route &middot;
+        <span class="sw" style="background:#38d9a9;height:8px"></span>terminal lake &middot;
+        <span class="sw" style="background:#a5d8ff"></span>ice shelf outline &middot;
+        + AMPS 8&nbsp;km grid node; the ring marks the node each meteogram is read from. Map 106&nbsp;&times;&nbsp;110&nbsp;km on the NISAR radar mosaic; true north points down and to the left.</p>
+    </details>
+  </div>
+
+  <figure id="fig">
+    <div class="scroller" id="scroller"><img id="img" alt=""></div>
+    <figcaption>Tap the chart to zoom; scroll sideways when zoomed. Times are UTC (IST = UTC + 5:30).</figcaption>
+  </figure>
+  <div class="empty" id="nochart" hidden>The chart for this older run was not kept (it predates this page); its numbers and guidance are below.</div>
+  <div class="empty" id="empty" hidden>No forecast runs have been added yet. New runs appear here after each update.</div>
+
+  <section class="guidance" id="guidance" aria-labelledby="g-title" hidden>
+    <div class="ghead"><h2 id="g-title">Model guidance</h2><span class="made" id="g-made"></span></div>
+    <p class="headline" id="g-head"></p>
+    <p class="disclaimer" id="g-site"></p>
+    <div class="days" id="g-days"></div>
+    <p class="disclaimer" id="g-disc"></p>
+  </section>
+
+  <section class="verify" id="verify-box" aria-labelledby="v-title" hidden>
+    <div class="ghead"><h2 id="v-title">AMPS against the station reports</h2><span class="made" id="v-made"></span></div>
+    <ul class="vstats" id="v-stats"></ul>
+    <svg class="vchart" id="v-chart" viewBox="0 0 800 380" role="img" aria-label="Wind speed and temperature at Maitri: AMPS forecast and station reports"></svg>
+    <div class="vlegend"><span><i style="background:#d6336c"></i>AMPS at Maitri, as shown on this page at the time</span>
+      <span><i style="background:var(--ink)"></i>Maitri report</span>
+      <span><i style="border:2px solid var(--muted);width:6px;height:6px"></i>Novolazarevskaya report (28&nbsp;km west)</span></div>
+    <p class="disclaimer" id="v-note"></p>
+  </section>
+
+  <div class="actions">
+    <button class="btn" id="dl-png" type="button">Download chart (PNG)</button>
+    <button class="btn" id="dl-guide" type="button" hidden>Download chart + guidance (PNG)</button>
+    <button class="btn ghost" id="dl-csv" type="button">Download numbers (CSV)</button>
+    <a class="btn" id="open-png" href="#" target="_blank" rel="noopener" hidden>Open chart full size</a>
+    <button class="btn ghost" id="show-csv" type="button" aria-expanded="false" hidden>Show numbers (CSV)</button>
+    <span class="status" id="status" role="status"></span>
+  </div>
+  <div class="csvbox" id="csvbox" hidden>
+    <p class="disclaimer">Select all and copy, then paste into a spreadsheet. Saving files is not offered in this view; open the page signed in to claude.ai for download buttons.</p>
+    <textarea id="csvtext" readonly rows="10" spellcheck="false"></textarea>
+  </div>
+
+  <section class="guide" aria-label="How to read the meteogram">
+    <div><h2>Temperature</h2><p>Red line: air temperature at 2&nbsp;m with daily highs and lows. Blue dashes: wind chill, what exposed skin feels. Symbols every 6&nbsp;h: clear, cloud or snow.</p></div>
+    <div><h2>Cloud and snow</h2><p>Grey: layers where the air is saturated over ice, so cloud is likely, by altitude (right scale). Orange ticks: model cloud base. Blue bars: snowfall as mm of water per 3&nbsp;h (about 1&nbsp;cm of fresh snow per mm).</p></div>
+    <div><h2>Wind</h2><p>Speed at 10&nbsp;m in m/s (left) and knots (right). Arrows point where the wind blows to; letters give where it comes from. Dashed lines mark strong (10&nbsp;m/s) and gale (15&nbsp;m/s). AMPS publishes no gusts.</p></div>
+    <div><h2>Model guidance</h2><p>Written by fixed rules from the AMPS numbers, not by a forecaster. Rules follow the <i>International Antarctic Weather Forecasting Handbook</i> (Turner &amp; Pendlebury 2004), section on Maitri and Dakshin Gangotri. Amber: drifting snow (mean wind 20&nbsp;kt or more, 14&nbsp;kt on fresh snow), snow of 0.5&nbsp;mm or more, thick low cloud (poor contrast and horizon), a storm pattern, or pressure falling fast. Red: blowing snow (35&nbsp;kt or more) or whiteout risk (thick cloud with snow or drift). &ldquo;Last run&rdquo; compares the day with the previous AMPS run: a hazard seen in both runs is more trustworthy than one that just appeared.</p></div>
+    <div><h2>AMPS against the station reports</h2><p>Every update compares what this page showed with the 6-hourly reports from Maitri and Novolazarevskaya. The bias tells you how to read the meteogram: for example, if AMPS has run 2&nbsp;°C too cold at night, expect nights about 2&nbsp;°C warmer than shown. It builds up through the season.</p></div>
+    <div><h2>Pressure</h2><p>Sea-level pressure. Red shading marks a fall of 4&nbsp;hPa or more in 12&nbsp;h, often the first sign of a storm or rising wind.</p></div>
+  </section>
+
+  <footer>Data: Antarctic Mesoscale Prediction System (AMPS), NCAR, run for NSF. Values are taken from the nearest 8&nbsp;km grid point. Model guidance only, not a forecast: gusts are stronger than the mean wind, and conditions on the spot come first.</footer>
+</div>
+
+<script id="runs" type="application/json">__RUNS__</script>
+<script id="map" type="application/json">__MAP__</script>
+<script id="verify" type="application/json">__VERIFY__</script>
+<script>
+(function () {
+  "use strict";
+  var runs = [];
+  try { runs = JSON.parse(document.getElementById("runs").textContent) || []; } catch (e) { runs = []; }
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { site: null, run: 0 };
+  try { state.site = localStorage.getItem("minis-site"); } catch (e) {}
+  var downloads = null;
+  var WEB = !(window.claude && window.claude.use);   // true outside claude.ai
+  var map = { sites: [] };
+  try { map = JSON.parse(document.getElementById("map").textContent) || map; } catch (e) {}
+  function siteNo(name) {
+    for (var i = 0; i < map.sites.length; i++) if (map.sites[i].name === name) return i + 1;
+    return null;
+  }
+  try { $("mapbox").open = window.matchMedia("(min-width: 760px)").matches; } catch (e) { $("mapbox").open = true; }
+
+  function cycleDate(c) {
+    return new Date(Date.UTC(+c.slice(0, 4), +c.slice(4, 6) - 1, +c.slice(6, 8), +c.slice(8, 10)));
+  }
+  function runLabel(c) {
+    var d = cycleDate(c);
+    return d.toUTCString().slice(0, 11) + " " + c.slice(8, 10) + " UTC";
+  }
+  function ageText(c) {
+    var h = (Date.now() - cycleDate(c).getTime()) / 3.6e6;
+    if (h < 0) return { t: "run time in the future", old: true };
+    var d = Math.floor(h / 24), hh = Math.round(h - d * 24);
+    return { t: "run is " + (d ? d + " d " : "") + hh + " h old", old: h > 36 };
+  }
+  function current() {
+    var r = runs[state.run];
+    if (!r) return null;
+    var s = r.sites.filter(function (x) { return x.slug === state.site; })[0] || r.sites[0];
+    state.site = s.slug;
+    return { run: r, site: s };
+  }
+
+  function render() {
+    var empty = !runs.length;
+    $("empty").hidden = !empty; $("fig").hidden = empty;
+    $("dl-png").disabled = empty; $("dl-csv").disabled = empty;
+    if (empty) return;
+    var cur = current();
+    var box = $("sites"); box.textContent = "";
+    function pick(slug) {
+      state.site = slug;
+      try { localStorage.setItem("minis-site", slug); } catch (e) {}
+      render();
+    }
+    function span(cls, text) { var e = document.createElement("span"); e.className = cls; e.textContent = text; return e; }
+    var frame = $("mapframe");
+    Array.prototype.slice.call(frame.querySelectorAll(".pin")).forEach(function (p) { p.remove(); });
+    cur.run.sites.forEach(function (s, i) {
+      var n = siteNo(s.name) || i + 1, on = s.slug === cur.site.slug;
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "site";
+      b.setAttribute("aria-pressed", String(on));
+      b.appendChild(span("num", String(n)));
+      b.appendChild(span("nm", s.name));
+      b.appendChild(span("ll", Math.abs(s.lat).toFixed(3) + "°S " + s.lon.toFixed(3) + "°E"));
+      b.addEventListener("click", function () { pick(s.slug); });
+      box.appendChild(b);
+      var m = map.sites[n - 1];
+      if (m && m.name === s.name) {
+        var p = document.createElement("button");
+        p.type = "button"; p.className = "pin" + (m.fx > 0.6 ? " east" : "");
+        p.style.left = (m.fx * 100) + "%"; p.style.top = (m.fy * 100) + "%";
+        p.setAttribute("aria-pressed", String(on));
+        p.setAttribute("aria-label", "Show " + s.name);
+        p.appendChild(document.createTextNode(String(n)));
+        p.appendChild(span("tag", s.name));
+        p.addEventListener("click", function () { pick(s.slug); });
+        frame.appendChild(p);
+      }
+    });
+    var sel = $("run");
+    if (sel.options.length !== runs.length) {
+      sel.textContent = "";
+      runs.forEach(function (r, i) {
+        var o = document.createElement("option");
+        o.value = String(i); o.textContent = runLabel(r.cycle) + (i === 0 ? " (latest)" : "");
+        sel.appendChild(o);
+      });
+    }
+    sel.value = String(state.run);
+    var a = ageText(cur.run.cycle);
+    $("age").textContent = a.t; $("age").className = "age" + (a.old ? " old" : "");
+    $("coords").textContent = cur.site.name + ": AMPS grid point " + cur.site.dist_km.toFixed(1) + " km away";
+    var img = $("img"), haspng = !!cur.site.png;
+    $("fig").hidden = !haspng;  $("nochart").hidden = haspng;
+    $("dl-png").disabled = !haspng;
+    if (haspng) img.src = cur.site.png;
+    img.alt = "Meteogram for " + cur.site.name + ", AMPS run " + runLabel(cur.run.cycle);
+    renderGuidance(cur.site.summary);
+    $("dl-guide").hidden = !(downloads || WEB) || !cur.site.summary || !haspng;
+    $("open-png").href = cur.site.png || "#";
+    if (!$("csvbox").hidden) $("csvtext").value = cur.site.csv;
+    $("status").textContent = "";
+  }
+
+  function renderGuidance(g) {
+    var box = $("guidance");
+    box.hidden = !g;
+    if (!g) return;
+    $("g-made").textContent = "written " + g.made + " UTC from this run";
+    $("g-head").textContent = g.headline;
+    $("g-site").textContent = g.site_note || ""; $("g-site").hidden = !g.site_note;
+    $("g-disc").textContent = g.disclaimer;
+    var days = $("g-days"); days.textContent = "";
+    g.days.forEach(function (d) {
+      var c = document.createElement("article"); c.className = "day";
+      var h = document.createElement("h3"); h.textContent = d.label;
+      if (d.note) { var n = document.createElement("span"); n.className = "note"; n.textContent = d.note; h.appendChild(n); }
+      c.appendChild(h);
+      d.items.forEach(function (it) {
+        var r = document.createElement("div"); r.className = "item " + it.level;
+        var k = document.createElement("span"); k.className = "k"; k.textContent = it.kind;
+        var t = document.createElement("span"); t.textContent = it.text;
+        r.appendChild(k); r.appendChild(t); c.appendChild(r);
+      });
+      days.appendChild(c);
+    });
+  }
+
+  // ---- AMPS vs station reports (amps_verify.py): stats text and a small SVG chart
+  function renderVerify() {
+    var v = null;
+    try { v = JSON.parse($("verify").textContent); } catch (e) { v = null; }
+    if (!v || !v.records || !v.records.length) return;
+    $("verify-box").hidden = false;
+    $("v-made").textContent = "reports up to " + v.updated + " UTC";
+    var ul = $("v-stats"); ul.textContent = "";
+    function li(t) { var e = document.createElement("li"); e.textContent = t; ul.appendChild(e); }
+    function sgn(x, unit, more, less) {
+      return Math.abs(x) < 0.05 ? "about right on average" :
+        Math.abs(x).toFixed(1) + " " + unit + " " + (x > 0 ? more : less) + " on average";
+    }
+    function block(st, label) {
+      if (!st) return;
+      li(label + " (" + st.n + " Maitri reports): temperature " + sgn(st.T_bias, "°C", "too warm", "too cold") +
+         " (typical error " + st.T_mae.toFixed(1) + " °C); wind " + sgn(st.ws_bias, "m/s", "too strong", "too weak") +
+         " (typical error " + st.ws_mae.toFixed(1) + " m/s).");
+      var k = st.kat_hit + st.kat_miss + st.kat_false;
+      if (k) li(label + ", katabatic wind at night (7 m/s or more from S to SW at 00 or 06 UTC): caught " +
+                st.kat_hit + ", missed " + st.kat_miss + ", false alarms " + st.kat_false + ".");
+    }
+    var s = v.stats || {};
+    block(s.week, "Last 7 days");
+    if (s.all && s.week && s.all.n > s.week.n) block(s.all, "Whole record");
+    if (!s.week && !s.all) li("No forecast to compare yet: comparisons start once a run has been on the page for 10 hours.");
+    var n = s.all ? s.all.n : 0;
+    $("v-note").textContent = (n < 40 ? "Only " + n + " comparisons so far: treat these numbers as a first hint, not a correction. " : "") +
+      "AMPS values come from the nearest 8 km grid point, 3 km from the station. Reports via Ogimet (SYNOP)." +
+      (v.errors && v.errors.length ? " Last update could not reach: " + v.errors.join("; ") : "");
+
+    // chart: last 5 days, wind (top) and temperature (bottom)
+    var svg = $("v-chart"), NS = "http://www.w3.org/2000/svg";
+    svg.textContent = "";
+    function el(name, attrs, text) {
+      var e = document.createElementNS(NS, name);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      if (text != null) e.textContent = text;
+      svg.appendChild(e); return e;
+    }
+    function tt(s) { return Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10), +s.slice(11, 13)); }
+    var recs = v.records, tEnd = tt(v.updated), tStart = tEnd - 5 * 864e5;
+    recs = recs.filter(function (r) { return tt(r.t) >= tStart; });
+    if (!recs.length) return;
+    var L = 52, R = 790, panels = [
+      { key: "ws", fk: "ws", top: 28, h: 145, label: "Wind m/s" },
+      { key: "T", fk: "T", top: 218, h: 140, label: "Temp °C" }];
+    function X(t) { return L + (R - L) * (t - tStart) / (tEnd - tStart); }
+    panels.forEach(function (P) {
+      var vals = [];
+      recs.forEach(function (r) { if (r[P.key] != null) vals.push(r[P.key]); if (r.fc) vals.push(r.fc[P.fk]); });
+      var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+      if (P.key === "ws") { lo = 0; hi = Math.max(12, Math.ceil(hi / 2) * 2); }
+      else { lo = Math.floor(lo / 2) * 2 - 2; hi = Math.ceil(hi / 2) * 2 + 2; }
+      function Y(x) { return P.top + P.h * (hi - x) / (hi - lo); }
+      var step = P.key === "ws" ? 4 : (hi - lo > 16 ? 5 : 2);
+      for (var g = Math.ceil(lo / step) * step; g <= hi; g += step) {
+        el("line", { x1: L, x2: R, y1: Y(g), y2: Y(g), stroke: "currentColor", "stroke-opacity": 0.25, "stroke-width": 1 });
+        el("text", { x: L - 6, y: Y(g) + 4, "text-anchor": "end", "font-size": 12, fill: "currentColor" }, String(g));
+      }
+      el("text", { x: 4, y: P.top - 12, "font-size": 12, fill: "currentColor" }, P.label);
+      for (var d = Math.ceil(tStart / 864e5) * 864e5; d <= tEnd; d += 864e5) {
+        el("line", { x1: X(d), x2: X(d), y1: P.top, y2: P.top + P.h, stroke: "currentColor", "stroke-opacity": 0.45 });
+        if (P.key === "T") el("text", { x: X(d) + 4, y: P.top + P.h + 18, "font-size": 12, fill: "currentColor" },
+          new Date(d).toUTCString().slice(0, 11));
+      }
+      // AMPS line through the compared times
+      var pts = recs.filter(function (r) { return r.st === "89514" && r.fc; })
+        .map(function (r) { return X(tt(r.t)).toFixed(1) + "," + Y(r.fc[P.fk]).toFixed(1); });
+      if (pts.length > 1) el("polyline", { points: pts.join(" "), fill: "none", stroke: "#d6336c", "stroke-width": 2.5 });
+      recs.forEach(function (r) {
+        if (r.st === "89514" && r.fc) el("circle", { cx: X(tt(r.t)), cy: Y(r.fc[P.fk]), r: 4, fill: "#d6336c" });
+      });
+      recs.forEach(function (r) {
+        if (r[P.key] == null) return;
+        if (r.st === "89512") el("circle", { cx: X(tt(r.t)), cy: Y(r[P.key]), r: 4, fill: "none", stroke: "currentColor", "stroke-width": 1.5 });
+        else el("circle", { cx: X(tt(r.t)), cy: Y(r[P.key]), r: 4.5, fill: "var(--ink)" });
+      });
+    });
+  }
+  renderVerify();
+
+  $("run").addEventListener("change", function (e) { state.run = +e.target.value; render(); });
+  $("scroller").addEventListener("click", function () { $("scroller").classList.toggle("zoom"); });
+
+  function fileBase() {
+    var c = current();
+    return c.run.cycle + "_" + c.site.slug;
+  }
+  function webSave(filename, data) {
+    var blob = data instanceof Blob ? data : new Blob([data], { type: /\.csv$/.test(filename) ? "text/csv" : "application/octet-stream" });
+    var url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    $("status").textContent = "Saved " + filename;
+  }
+  async function save(filename, data) {
+    if (!downloads) { if (WEB) webSave(filename, data); return; }
+    $("status").textContent = "Preparing " + filename + "…";
+    try {
+      var res = await downloads.save({ filename: filename, data: data });
+      $("status").textContent = res && res.status === "saved" ? "Saved " + filename : "";
+    } catch (e) {
+      var code = e && e.code;
+      $("status").textContent = code === "declined" ? "Download cancelled." :
+        code === "rate_limited" ? "A download prompt is already open. Try again in a moment." :
+        "Downloads are not available in this view.";
+    }
+  }
+  $("dl-png").addEventListener("click", async function () {
+    var c = current(); if (!c) return;
+    try {
+      var blob = await (await fetch(c.site.png)).blob();
+      await save(fileBase() + ".png", blob);
+    } catch (e) { $("status").textContent = "Could not load the chart image for download."; }
+  });
+  // ---- one PNG: the meteogram with the guidance text drawn below it (light colours, like the chart)
+  function composeGuidance(img, g, title) {
+    var W = img.width, pad = 40, kindW = 170, gap = 18;
+    var C = { bg: "#f9f9f9", ink: "#17232e", muted: "#5b6b78", line: "#d5dde3", watch: "#b07800", warn: "#b5470b" };
+    var F = '"IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif';
+    var cv = document.createElement("canvas"), ctx = cv.getContext("2d");
+    function wrap(text, font, width) {
+      ctx.font = font;
+      var words = String(text).split(/\s+/), lines = [], cur = "";
+      words.forEach(function (w) {
+        var t = cur ? cur + " " + w : w;
+        if (cur && ctx.measureText(t).width > width) { lines.push(cur); cur = w; } else { cur = t; }
+      });
+      if (cur) lines.push(cur);
+      return lines;
+    }
+    // layout pass (draw=false) to find the height, then draw pass
+    function lay(draw) {
+      var y = img.height + 36;
+      function para(text, font, color, x, width, lh) {
+        var ls = wrap(text, font, width);
+        if (draw) { ctx.font = font; ctx.fillStyle = color; ls.forEach(function (l, i) { ctx.fillText(l, x, y + i * lh); }); }
+        y += ls.length * lh;
+        return ls.length * lh;
+      }
+      if (draw) { ctx.fillStyle = C.line; ctx.fillRect(pad, img.height + 10, W - 2 * pad, 2); }
+      y += 10;
+      para("Model guidance - " + title, "600 30px " + F, C.ink, pad, W - 2 * pad, 38);
+      para("written " + g.made + " UTC from this run", "20px " + F, C.muted, pad, W - 2 * pad, 28);
+      y += 8;
+      para(g.headline, "600 23px " + F, C.ink, pad, W - 2 * pad, 31);
+      if (g.site_note) para(g.site_note, "21px " + F, C.muted, pad, W - 2 * pad, 28);
+      g.days.forEach(function (d) {
+        y += 22;
+        if (draw) { ctx.fillStyle = C.line; ctx.fillRect(pad, y - 4, W - 2 * pad, 1); }
+        y += 16;
+        if (draw && d.note) {
+          ctx.font = "600 25px " + F; var lw = ctx.measureText(d.label + "   ").width;
+          ctx.font = "20px " + F; ctx.fillStyle = C.muted; ctx.fillText(d.note, pad + lw, y);
+        }
+        para(d.label, "600 25px " + F, C.ink, pad, W - 2 * pad, 32);
+        y += 4;
+        d.items.forEach(function (it) {
+          var y0 = y, col = it.level === "warn" ? C.warn : it.level === "watch" ? C.watch : null;
+          if (draw) {
+            ctx.font = (col ? "600 " : "") + "18px " + F; ctx.fillStyle = col ? C.ink : C.muted;
+            ctx.fillText(it.kind.toUpperCase(), pad + 16, y + 2);
+          }
+          var h = para(it.text, "22px " + F, C.ink, pad + 16 + kindW, W - 2 * pad - 16 - kindW, 29);
+          if (draw && col) { ctx.fillStyle = col; ctx.fillRect(pad, y0 - 22, 5, h + 4); }
+          y += 7;
+        });
+      });
+      y += 24;
+      para(g.disclaimer, "19px " + F, C.muted, pad, W - 2 * pad, 26);
+      return y + 24;
+    }
+    cv.width = W; cv.height = 10; ctx.textBaseline = "alphabetic";
+    var H = lay(false);
+    cv.height = Math.ceil(H);
+    ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, cv.height);
+    ctx.drawImage(img, 0, 0);
+    ctx.textBaseline = "alphabetic";
+    lay(true);
+    return cv;
+  }
+  async function loadImage(url) {
+    var blob = await (await fetch(url)).blob();
+    var u = URL.createObjectURL(blob);
+    try {
+      return await new Promise(function (ok, bad) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = bad; i.src = u; });
+    } finally { setTimeout(function () { URL.revokeObjectURL(u); }, 0); }
+  }
+  window.__composeGuidance = composeGuidance;      // used by the local preview test only
+  $("dl-guide").addEventListener("click", async function () {
+    var c = current(); if (!c || !c.site.summary) return;
+    $("status").textContent = "Preparing image…";
+    try {
+      try { if (document.fonts) await document.fonts.ready; } catch (e2) {}
+      var img = await loadImage(c.site.png);
+      var cv = composeGuidance(img, c.site.summary, c.site.name + ", AMPS run " + runLabel(c.run.cycle));
+      var blob = await new Promise(function (ok) { cv.toBlob(ok, "image/png"); });
+      await save(fileBase() + "_guidance.png", blob);
+    } catch (e) { $("status").textContent = "Could not build the image for download."; }
+  });
+  $("dl-csv").addEventListener("click", function () {
+    var c = current(); if (c) save(fileBase() + ".csv", c.site.csv);
+  });
+  $("show-csv").addEventListener("click", function () {
+    var open = $("csvbox").hidden;
+    $("csvbox").hidden = !open;  $("show-csv").setAttribute("aria-expanded", String(open));
+    $("show-csv").textContent = open ? "Hide numbers" : "Show numbers (CSV)";
+    var c = current(); if (open && c) { $("csvtext").value = c.site.csv; $("csvtext").focus(); $("csvtext").select(); }
+  });
+  // views without the save capability (e.g. a shared link): open the chart in a tab and show the numbers
+  function fallback(on) {
+    $("dl-png").hidden = on; $("dl-csv").hidden = on;
+    $("open-png").hidden = !on; $("show-csv").hidden = !on;
+  }
+
+  render();
+  if (WEB) { fallback(false); }                     // ordinary web page (e.g. GitHub Pages): normal downloads
+  else fallback(true);                              // claude.ai: until the capability answers (or if it never does)
+  if (!WEB) {
+    window.claude.use("downloads").then(function (d) {
+      downloads = d;
+      fallback(!d);
+      render();
+    }, function () { fallback(true); });
+  }
+})();
+</script>

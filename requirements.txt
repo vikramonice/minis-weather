@@ -1,0 +1,6 @@
+numpy
+requests
+certifi
+matplotlib
+scipy
+pillow
