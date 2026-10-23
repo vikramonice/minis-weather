@@ -47,17 +47,21 @@ jobs:
         run: python -m pip install -q -r requirements.txt
 
       - name: Make the update
+        id: make
         env:
           NIVL_PROJECT_ROOT: ${{ runner.temp }}/amps
           MPLBACKEND: Agg
+          AMPS_CHANGED_FLAG: ${{ runner.temp }}/site_changed
         run: |
           if [ "${{ inputs.rebuild }}" = "true" ]; then
             python publish.py site --rebuild
           else
             python publish.py site
           fi
+          if [ -f "$AMPS_CHANGED_FLAG" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; else echo "No new run: nothing to publish."; fi
 
       - name: Publish (gh-pages keeps a single commit, so the repository stays small)
+        if: steps.make.outputs.changed == 'true'
         run: |
           cd site
           rm -rf .git

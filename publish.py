@@ -88,6 +88,9 @@ def main():
     shutil.copy2(HERE / "static" / "map.jpg", site / "map.jpg")
     (site / ".nojekyll").write_text("")
     print("site written:", site, "charts:", len(keep))
+    flag = os.environ.get("AMPS_CHANGED_FLAG")          # tells the workflow there is something to publish
+    if flag:
+        Path(flag).write_text("changed")
 
 
 if __name__ == "__main__":
