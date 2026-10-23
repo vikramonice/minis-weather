@@ -5,10 +5,11 @@ on:
     # AMPS 00 and 12 UTC runs finish on the UCAR server about 10 h later (seen 09:20-10:40 and
     # 21:25-22:10 UTC). Check every 30 min through those windows; a check with nothing new exits
     # in seconds and commits nothing.
-    - cron: "0,30 9-11 * * *"
-    - cron: "0 12 * * *"
-    - cron: "0,30 21-23 * * *"
-    - cron: "0,30 0 * * *"
+    # odd minutes: the top and half of the hour are when GitHub's scheduler is busiest
+    - cron: "7,37 9-11 * * *"
+    - cron: "7 12 * * *"
+    - cron: "7,37 21-23 * * *"
+    - cron: "7,37 0 * * *"
   workflow_dispatch:
     inputs:
       rebuild:
