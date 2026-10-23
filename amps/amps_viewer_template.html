@@ -48,8 +48,6 @@ h1 { margin: 0; font-size: 1.7rem; font-weight: 600; letter-spacing: 0.01em; tex
 .site[aria-pressed="true"] { border-color: var(--ice); background: var(--ice-soft); }
 .site[aria-pressed="true"] .num { background: var(--ice); color: var(--bg); }
 
-details.map summary { cursor: pointer; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--muted); padding: 2px 0 8px; }
 .mapframe { position: relative; max-width: 360px; margin: 0 auto; border-radius: 8px; overflow: hidden;
   border: 1px solid var(--line); background: #222; }
 .mapframe img { display: block; width: 100%; height: auto; }
@@ -125,12 +123,20 @@ a.btn { text-decoration: none; display: inline-block; }
 .flow h3 { margin: 2px 0 2px; font-size: 1rem; font-weight: 600; }
 .flow p { margin: 0; font-size: 0.92rem; color: var(--muted); max-width: 62ch; }
 .flow .when { font-family: var(--font-data); font-size: 0.8rem; color: var(--ice); }
-details.fold > summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 8px;
-  font-size: 0.95rem; font-weight: 600; color: var(--ice); padding: 4px 0; }
-details.fold > summary::-webkit-details-marker { display: none; }
-details.fold > summary::before { content: "\25B8"; display: inline-block; transition: transform .15s; }
-details.fold[open] > summary::before { transform: rotate(90deg); }
-details.fold > summary .hint { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+/* fold headings look like buttons, so first-time visitors see they open */
+details.map > summary, details.fold > summary { cursor: pointer; list-style: none; display: flex; align-items: center;
+  flex-wrap: wrap; gap: 4px 10px; padding: 10px 12px; border: 1px solid var(--ice); border-radius: 8px;
+  background: var(--ice-soft); color: var(--ink); font-size: 0.98rem; font-weight: 600; }
+details.map > summary::-webkit-details-marker, details.fold > summary::-webkit-details-marker { display: none; }
+details.map > summary::after, details.fold > summary::after { content: "Show \25BE"; margin-left: auto; flex: none;
+  font-size: 0.85rem; font-weight: 600; color: var(--ice); padding: 2px 10px; border-radius: 999px;
+  border: 1px solid var(--ice); background: var(--surface); }
+details.map[open] > summary::after, details.fold[open] > summary::after { content: "Hide \25B4"; }
+details.map > summary:hover, details.fold > summary:hover { filter: brightness(0.97); }
+details.map > summary:focus-visible, details.fold > summary:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
+details.map[open] > summary { margin-bottom: 8px; }
+details.map > summary .hint, details.fold > summary .hint { flex-basis: 100%; order: 3; font-weight: 400;
+  color: var(--muted); font-size: 0.85rem; }
 details.fold > .foldbody { display: grid; gap: 10px; padding-top: 8px; }
 .theme { font: inherit; font-size: 0.85rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line);
   background: var(--surface); color: var(--ink); cursor: pointer; }
@@ -177,7 +183,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
         title="Same point on meteoblue (global models, coarser than AMPS; heavy page over Starlink)">compare on meteoblue &#8599;</a></span>
     </div>
     <details class="map" id="mapbox">
-      <summary>Site map</summary>
+      <summary>Site map <span class="hint">where the five sites are, their elevation and distance to the sea</span></summary>
       <div class="mapframe" id="mapframe">
         <img src="__MAP_SRC__" alt="Map of Nivlisen and Schirmacher Oasis with the five meteogram sites on the NISAR radar mosaic" width="960" height="996">
       </div>
