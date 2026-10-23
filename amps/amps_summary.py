@@ -273,7 +273,7 @@ def summarise(cycle, slug, start):
                 days=days,
                 disclaimer="AMPS model guidance written by fixed rules, not a forecaster's forecast. Rules follow the "
                            "International Antarctic Weather Forecasting Handbook (Turner & Pendlebury 2004). "
-                           "Mean wind only: gusts are stronger. Check the latest run and look outside.")
+                           "Mean wind only: gusts are stronger. Use the newest run, and trust what you see on site over the model.")
 
 
 def main():

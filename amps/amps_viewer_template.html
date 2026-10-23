@@ -110,6 +110,18 @@ figcaption { font-size: 0.85rem; color: #5b6b78; padding: 6px 10px; border-top: 
 .csvbox textarea { width: 100%; box-sizing: border-box; font: 12px/1.4 ui-monospace, Consolas, monospace;
   background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
 a.btn { text-decoration: none; display: inline-block; }
+details.fold > summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 8px;
+  font-size: 0.95rem; font-weight: 600; color: var(--ice); padding: 4px 0; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "\25B8"; display: inline-block; transition: transform .15s; }
+details.fold[open] > summary::before { transform: rotate(90deg); }
+details.fold > summary .hint { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+details.fold > .foldbody { display: grid; gap: 10px; padding-top: 8px; }
+.theme { font: inherit; font-size: 0.85rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); cursor: pointer; }
+.hdr-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mb { font-size: 0.85rem; color: var(--ice); text-decoration: none; white-space: nowrap; }
+.mb:hover, .mb:focus-visible { text-decoration: underline; }
 .btn { font: inherit; font-weight: 500; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--ice);
   background: var(--ice); color: var(--bg); cursor: pointer; }
 .btn.ghost { background: transparent; color: var(--ice); }
@@ -129,7 +141,10 @@ footer { font-size: 0.82rem; color: var(--muted); }
 <div class="wrap">
   <header>
     <h1>MINIS Meteograms</h1>
-    <span class="sub">Nivlisen and Maitri &middot; AMPS WRF 8&nbsp;km forecasts, 5 days</span>
+    <div class="hdr-right">
+      <span class="sub">Nivlisen and Maitri &middot; AMPS WRF 8&nbsp;km forecasts, 5 days</span>
+      <button class="theme" id="theme" type="button" title="Colour theme: follow the device, light or dark">Theme: auto</button>
+    </div>
   </header>
 
   <div class="top">
@@ -143,7 +158,8 @@ footer { font-size: 0.82rem; color: var(--muted); }
         <div class="label" id="sites-label">Site</div>
         <div class="sites" id="sites" role="group" aria-labelledby="sites-label"></div>
       </div>
-      <span class="coords" id="coords"></span>
+      <span class="coords"><span id="coords"></span> &middot; <a class="mb" id="mb" href="#" target="_blank" rel="noopener"
+        title="Same point on meteoblue (global models, coarser than AMPS; heavy page over Starlink)">compare on meteoblue &#8599;</a></span>
     </div>
     <details class="map" id="mapbox">
       <summary>Site map</summary>
@@ -168,18 +184,25 @@ footer { font-size: 0.82rem; color: var(--muted); }
     <div class="ghead"><h2 id="g-title">Model guidance</h2><span class="made" id="g-made"></span></div>
     <p class="headline" id="g-head"></p>
     <p class="disclaimer" id="g-site"></p>
-    <div class="days" id="g-days"></div>
+    <details class="fold" id="g-fold">
+      <summary>Day by day <span class="hint">wind, snow, cloud, temperature, pressure for each day</span></summary>
+      <div class="foldbody"><div class="days" id="g-days"></div></div>
+    </details>
     <p class="disclaimer" id="g-disc"></p>
   </section>
 
   <section class="verify" id="verify-box" aria-labelledby="v-title" hidden>
-    <div class="ghead"><h2 id="v-title">AMPS against the station reports</h2><span class="made" id="v-made"></span></div>
+    <details class="fold" id="v-fold">
+      <summary><span id="v-title">AMPS against the station reports</span> <span class="hint" id="v-made"></span></summary>
+      <div class="foldbody">
     <ul class="vstats" id="v-stats"></ul>
     <svg class="vchart" id="v-chart" viewBox="0 0 800 380" role="img" aria-label="Wind speed and temperature at Maitri: AMPS forecast and station reports"></svg>
     <div class="vlegend"><span><i style="background:#d6336c"></i>AMPS at Maitri, as shown on this page at the time</span>
       <span><i style="background:var(--ink)"></i>Maitri report</span>
       <span><i style="border:2px solid var(--muted);width:6px;height:6px"></i>Novolazarevskaya report (28&nbsp;km west)</span></div>
     <p class="disclaimer" id="v-note"></p>
+      </div>
+    </details>
   </section>
 
   <div class="actions">
@@ -300,6 +323,12 @@ footer { font-size: 0.82rem; color: var(--muted); }
     var a = ageText(cur.run.cycle);
     $("age").textContent = a.t; $("age").className = "age" + (a.old ? " old" : "");
     $("coords").textContent = cur.site.name + ": AMPS grid point " + cur.site.dist_km.toFixed(1) + " km away";
+    var z = 0;                                     // model ground height (m) for meteoblue's altitude
+    try {
+      var lines = cur.site.csv.split("\n"), hdr = lines[0].split(","), iz = hdr.indexOf("zsfc");
+      if (iz >= 0 && lines[1]) z = Math.max(0, Math.round(parseFloat(lines[1].split(",")[iz]) || 0));
+    } catch (e) {}
+    $("mb").href = "https://www.meteoblue.com/en/weather/week/" + cur.site.lat.toFixed(3) + "N" + cur.site.lon.toFixed(3) + "E" + z;
     var img = $("img"), haspng = !!cur.site.png;
     $("fig").hidden = !haspng;  $("nochart").hidden = haspng;
     $("dl-png").disabled = !haspng;
@@ -319,7 +348,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
     $("g-made").textContent = "written " + g.made + " UTC from this run";
     $("g-head").textContent = g.headline;
     $("g-site").textContent = g.site_note || ""; $("g-site").hidden = !g.site_note;
-    $("g-disc").textContent = g.disclaimer;
+    $("g-disc").textContent = (g.disclaimer || "").replace('Check the latest run and look outside.', 'Use the newest run, and trust what you see on site over the model.');
     var days = $("g-days"); days.textContent = "";
     g.days.forEach(function (d) {
       var c = document.createElement("article"); c.className = "day";
@@ -551,6 +580,29 @@ footer { font-size: 0.82rem; color: var(--muted); }
     $("dl-png").hidden = on; $("dl-csv").hidden = on;
     $("open-png").hidden = !on; $("show-csv").hidden = !on;
   }
+
+  // folded sections remember their state on this device
+  ["g-fold", "v-fold"].forEach(function (id) {
+    var d = $(id);
+    try { if (localStorage.getItem("minis-" + id) === "open") d.open = true; } catch (e) {}
+    d.addEventListener("toggle", function () { try { localStorage.setItem("minis-" + id, d.open ? "open" : "closed"); } catch (e) {} });
+  });
+  // colour theme: auto (follow the device) -> light -> dark
+  var THEMES = ["auto", "light", "dark"];
+  function applyTheme(t) {
+    if (t === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", t);
+    $("theme").textContent = "Theme: " + t;
+  }
+  var theme = "auto";
+  try { theme = localStorage.getItem("minis-theme") || "auto"; } catch (e) {}
+  if (THEMES.indexOf(theme) < 0) theme = "auto";
+  if (theme !== "auto") applyTheme(theme); else $("theme").textContent = "Theme: auto";
+  $("theme").addEventListener("click", function () {
+    theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    try { localStorage.setItem("minis-theme", theme); } catch (e) {}
+    applyTheme(theme);
+  });
 
   render();
   if (WEB) { fallback(false); }                     // ordinary web page (e.g. GitHub Pages): normal downloads
