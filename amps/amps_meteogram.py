@@ -486,8 +486,10 @@ def plot(site, p, rows, cycle, png):
             continue
         for f, va, off in [(np.argmax, "bottom", 0.6), (np.argmin, "top", -0.6)]:
             i = np.flatnonzero(m)[f(T[m])]
+            # white backing: the daily minimum sits inside the dark temperature fill
             ax[0].text(th[i], T[i] + off, "%.0f" % T[i], ha="center", va=va, fontsize=12, zorder=6,
-                       fontweight="bold" if f is np.argmax else "normal")
+                       fontweight="bold" if f is np.argmax else "normal",
+                       bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.8))
     # weather symbols every 6 h: snow / cloud / clear (sun or moon)
     for k in range(1, len(rows) - 1, 2):
         pr = a["apcp"][k] + a["apcp"][k + 1]
