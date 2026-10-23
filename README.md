@@ -13,6 +13,8 @@ station reports. Charts (PNG) and numbers (CSV) can be downloaded.
 Model guidance only, not a forecast: gusts are stronger than the mean wind, and conditions on the
 spot come first.
 
+How the field weather notes are written, rule by rule with sources: **[RULES.md](RULES.md)**.
+
 ## How it works
 
 ```mermaid
