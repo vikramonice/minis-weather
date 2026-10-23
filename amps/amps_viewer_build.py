@@ -32,7 +32,8 @@ TEMPLATE = _HERE / "amps_viewer_template.html"
 MAP_SRC = os.environ.get("AMPS_MAP_SRC", "/_blob/6b9da01cf3da5a52adb149e87a5a49e4")   # artifact asset; "map.jpg" on GitHub Pages
 MAP_JSON = _HERE / "amps_sites_map_web.json"           # site positions on that image (amps_site_map.py)
 KEEP = 8                                   # runs kept in the viewer (4 days at 2 runs/day)
-ORDER = ["depot_43d", "mn_04", "grounding_zone_gz_a", "potsdam_shear_margin_sm_a", "maitri"]
+# along the route, Maitri to MN_04 (also the numbering on the site map)
+ORDER = ["maitri", "potsdam_shear_margin_sm_a", "grounding_zone_gz_a", "depot_43d", "mn_04"]
 
 
 def load():
@@ -43,7 +44,7 @@ def add(cycle, urls_json):
     urls = json.loads(Path(urls_json).read_text())
     sites = json.loads((AMPS / ("%s_sites.json" % cycle)).read_text())
     run = {"cycle": cycle, "sites": []}
-    for s in sorted(sites, key=lambda s: ORDER.index(s["slug"]) if s["slug"] in ORDER else 99):
+    for s in sorted(sites, key=rank):
         png = "%s_%s.png" % (cycle, s["slug"])
         if png not in urls:
             print("no uploaded URL for", png, "- skipped")
@@ -60,14 +61,28 @@ def add(cycle, urls_json):
     build()
 
 
+WEB_HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+            '<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}'
+            '[hidden]{display:none!important}</style></head><body>')
+
+
+def rank(s):
+    return ORDER.index(s["slug"]) if s["slug"] in ORDER else 99
+
+
 def build():
     runs = load()
+    for r in runs:                                  # same site order for old and new runs
+        r["sites"] = sorted(r["sites"], key=rank)
     VIEW.mkdir(parents=True, exist_ok=True)
     data = json.dumps(runs, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
     mp = MAP_JSON.read_text() if MAP_JSON.exists() else "{}"
     html = (TEMPLATE.read_text(encoding="utf-8").replace("__RUNS__", data)
             .replace("__MAP__", mp.replace("</", "<\\/")).replace("__MAP_SRC__", MAP_SRC)
             .replace("__VERIFY__", (VERIFY.read_text() if VERIFY.exists() else "{}").replace("</", "<\\/")))
+    if os.environ.get("AMPS_WEB"):                  # standalone page (GitHub Pages): claude.ai adds this itself
+        html = WEB_HEAD + html + "</body></html>"
     (VIEW / "index.html").write_text(html, encoding="utf-8")
     print("viewer:", VIEW / "index.html", "runs:", [r["cycle"] for r in runs])
 

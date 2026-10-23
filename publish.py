@@ -41,7 +41,7 @@ def main():
     root = Path(os.environ.get("NIVL_PROJECT_ROOT") or tempfile.mkdtemp(prefix="amps_"))
     out = root / "outputs" / "field" / "amps"
     out.mkdir(parents=True, exist_ok=True)
-    ENV = dict(os.environ, NIVL_PROJECT_ROOT=str(root), AMPS_MAP_SRC="map.jpg")
+    ENV = dict(os.environ, NIVL_PROJECT_ROOT=str(root), AMPS_MAP_SRC="map.jpg", AMPS_WEB="1")
     site.mkdir(parents=True, exist_ok=True)
     (site / "runs").mkdir(exist_ok=True)
 
