@@ -47,6 +47,7 @@ CACHE = OUT / "grid_cache"
 URL = "https://www2.mmm.ucar.edu/rt/amps/wrf_grib/"
 DOMAIN = "d2"                         # 8 km Antarctic grid
 HOURS = list(range(0, 121, 3))
+SITE_URL = "https://vikramonice.github.io/minis-weather/"      # printed on every chart
 UA = {"User-Agent": "Nivl-MINIS-meteogram (research; python-requests)"}
 
 # default sites (lat, lon); edit or add with --site
@@ -573,8 +574,9 @@ def plot(site, p, rows, cycle, png):
              fontweight="bold")
     fig.text(0.98, 0.945, "run %s UTC" % c0.strftime("%d %b %Y %H"), fontsize=12, va="top", ha="right")
     fig.text(0.02, 0.012, "Times UTC (IST = UTC+5:30). Shading: daylight. Data: AMPS (NCAR/NSF), "
-             "8 km grid, 3-hourly; no gusts in AMPS output. Model guidance - check with the station forecaster.",
+             "8 km grid, 3-hourly; no gusts. Model guidance - check with the station forecaster.",
              fontsize=8.5, color="#666666")
+    fig.text(0.98, 0.012, SITE_URL, fontsize=9, color="#1a4a7a", ha="right")     # where the chart comes from
     fig.savefig(png, dpi=110, facecolor=fig.get_facecolor())
     plt.close(fig)
 
