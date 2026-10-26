@@ -537,7 +537,7 @@ def plot(site, p, rows, cycle, png):
     ax[2].plot(th, W, color="#1f8fff", lw=2.6, zorder=3)
     wtop = max(10, np.ceil(W.max() * 1.45 / 2) * 2)
     ax[2].set_ylim(0, wtop)
-    ax[2].set_ylabel("Wind speed (m/s)", color="#1f6fd0")
+    ax[2].set_ylabel("Wind at 10 m (m/s)", color="#1f6fd0")
     sec = ax[2].secondary_yaxis("right", functions=(lambda x: x * 1.94384, lambda x: x / 1.94384))
     sec.set_ylabel("knots")
     for lim, lab in [(10, "strong"), (15, "gale")]:
