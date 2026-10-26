@@ -78,6 +78,8 @@ h1 { margin: 0; font-size: 1.7rem; font-weight: 600; letter-spacing: 0.01em; tex
 .gsub { margin-top: -6px; font-style: italic; }
 .headline { margin: 0; font-size: 1rem; font-weight: 500; }
 .disclaimer { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.warnbox { margin: 10px 0 14px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 0.9rem; line-height: 1.45; }
+.warnbox p { margin: 8px 0; }
 .days { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 10px; }
 .day { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px 8px; min-width: 0; }
 .day h3 { margin: 0 0 6px; font-size: 1rem; font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
@@ -207,6 +209,10 @@ footer { font-size: 0.82rem; color: var(--muted); }
   <div class="empty" id="nochart" hidden>The chart for this older run was not kept (it predates this page); its numbers and field weather notes are below.</div>
   <div class="empty" id="empty" hidden>No forecast runs have been added yet. New runs appear here after each update.</div>
 
+  <div class="warnbox notesnote" id="g-notice" hidden>
+    <p><strong>About the field weather notes below.</strong> <span id="g-disc"></span></p>
+    <p><a class="mb" href="https://github.com/vikramonice/minis-weather/blob/main/RULES.md" target="_blank" rel="noopener">How these notes are written: every rule, with sources &#8599;</a></p>
+  </div>
   <section class="guidance" id="guidance" aria-labelledby="g-title" hidden>
     <div class="ghead"><h2 id="g-title">Field weather notes</h2><span class="made" id="g-made"></span></div>
     <p class="disclaimer gsub">the meteogram in words: hazards, wind, snow and cloud for each day</p>
@@ -216,8 +222,6 @@ footer { font-size: 0.82rem; color: var(--muted); }
       <summary>Day by day <span class="hint">wind, snow, cloud, temperature, pressure for each day</span></summary>
       <div class="foldbody"><div class="days" id="g-days"></div></div>
     </details>
-    <p class="disclaimer" id="g-disc"></p>
-    <p class="disclaimer"><a class="mb" href="https://github.com/vikramonice/minis-weather/blob/main/RULES.md" target="_blank" rel="noopener">How these notes are written: every rule, with sources &#8599;</a></p>
   </section>
 
   <section class="verify" id="verify-box" aria-labelledby="v-title" hidden>
@@ -426,6 +430,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
   function renderGuidance(g) {
     var box = $("guidance");
     box.hidden = !g;
+    $("g-notice").hidden = !g;
     if (!g) return;
     $("g-made").textContent = "written " + g.made + " UTC from this run";
     $("g-head").textContent = g.headline;
