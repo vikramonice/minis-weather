@@ -573,8 +573,7 @@ def plot(site, p, rows, cycle, png):
     fig.text(0.98, 0.975, "AMPS WRF 8 km", fontsize=17, va="top", ha="right", color="#1a4a7a",
              fontweight="bold")
     fig.text(0.98, 0.945, "run %s UTC" % c0.strftime("%d %b %Y %H"), fontsize=12, va="top", ha="right")
-    fig.text(0.02, 0.012, "Times UTC (IST = UTC+5:30). Shading: daylight. Data: AMPS (NCAR/NSF), "
-             "8 km grid, 3-hourly; no gusts. Model guidance - check with the station forecaster.",
+    fig.text(0.02, 0.012, "Times UTC (IST = UTC+5:30). Daylight shaded. Data: AMPS (NCAR/NSF), 8 km grid, 3-hourly; no gusts.",
              fontsize=8.5, color="#666666")
     fig.text(0.98, 0.012, SITE_URL, fontsize=9, color="#1a4a7a", ha="right")     # where the chart comes from
     fig.savefig(png, dpi=110, facecolor=fig.get_facecolor())

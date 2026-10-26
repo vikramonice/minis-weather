@@ -186,14 +186,14 @@ footer { font-size: 0.82rem; color: var(--muted); }
         title="Same point on meteoblue (global models, coarser than AMPS; heavy page over Starlink)">compare on meteoblue &#8599;</a></span>
     </div>
     <details class="map" id="mapbox">
-      <summary>Site map <span class="hint">where the five sites are, their elevation and distance to the sea</span></summary>
+      <summary>Site map <span class="hint">sites, elevation and distance to the sea</span></summary>
       <div class="mapframe" id="mapframe">
         <img src="__MAP_SRC__" alt="Map of Nivlisen and Schirmacher Oasis with the five meteogram sites on the NISAR radar mosaic" width="960" height="996">
       </div>
       <p class="maplegend"><span class="sw" style="background:#ff8787"></span>43D&ndash;Maitri route &middot;
         <span class="sw" style="background:#38d9a9;height:8px"></span>terminal lake &middot;
         <span class="sw" style="background:#a5d8ff"></span>ice shelf outline &middot;
-        + AMPS 8&nbsp;km grid node; the ring marks the node each meteogram is read from. Map 139&nbsp;&times;&nbsp;132&nbsp;km on the NISAR radar mosaic (the far north-west corner, outside NISAR, from MODIS); true north points down and to the left.</p>
+        + AMPS grid nodes, ring = the node each chart uses. NISAR mosaic, 139&nbsp;&times;&nbsp;132&nbsp;km; north points down-left.</p>
       <table class="sitetab" id="sitetab" hidden>
         <thead><tr><th>Site</th><th class="n">Elevation</th><th class="n">To the sea</th></tr></thead>
         <tbody></tbody>
@@ -204,18 +204,17 @@ footer { font-size: 0.82rem; color: var(--muted); }
 
   <figure id="fig">
     <div class="scroller" id="scroller"><img id="img" alt=""></div>
-    <figcaption>Tap the chart to zoom; scroll sideways when zoomed. Times are UTC (IST = UTC + 5:30).</figcaption>
+    <figcaption>Tap to zoom; scroll sideways when zoomed. Times UTC (IST = UTC + 5:30).</figcaption>
   </figure>
-  <div class="empty" id="nochart" hidden>The chart for this older run was not kept (it predates this page); its numbers and field weather notes are below.</div>
-  <div class="empty" id="empty" hidden>No forecast runs have been added yet. New runs appear here after each update.</div>
+  <div class="empty" id="nochart" hidden>This older run&rsquo;s chart was not kept; its numbers and notes are below.</div>
+  <div class="empty" id="empty" hidden>No runs yet. They appear after the next update.</div>
 
   <div class="warnbox notesnote" id="g-notice" hidden>
-    <p><strong>About the field weather notes below.</strong> <span id="g-disc"></span></p>
-    <p><a class="mb" href="https://github.com/vikramonice/minis-weather/blob/main/RULES.md" target="_blank" rel="noopener">How these notes are written: every rule, with sources &#8599;</a></p>
+    <p><strong>Field notes</strong> are written automatically from AMPS, using rules from the <i>Antarctic Weather Forecasting Handbook</i> (Maitri and Novolazarevskaya). <a class="mb" href="https://github.com/vikramonice/minis-weather/blob/main/RULES.md" target="_blank" rel="noopener">How they are written &#8599;</a><span id="g-disc" hidden></span></p>
   </div>
   <section class="guidance" id="guidance" aria-labelledby="g-title" hidden>
     <div class="ghead"><h2 id="g-title">Field weather notes</h2><span class="made" id="g-made"></span></div>
-    <p class="disclaimer gsub">the meteogram in words: hazards, wind, snow and cloud for each day</p>
+    <p class="disclaimer gsub">the meteogram in words</p>
     <p class="headline" id="g-head"></p>
     <p class="disclaimer" id="g-site"></p>
     <details class="fold" id="g-fold">
@@ -252,42 +251,36 @@ footer { font-size: 0.82rem; color: var(--muted); }
   </div>
 
   <section class="guide" aria-label="How to read the meteogram">
-    <div><h2>Temperature</h2><p>Red line: air temperature at 2&nbsp;m with daily highs and lows. Blue dashes: wind chill, what exposed skin feels. Symbols every 6&nbsp;h: clear, cloud or snow.</p></div>
-    <div><h2>Cloud and snow</h2><p>Grey: layers where the air is saturated over ice, so cloud is likely, by altitude (right scale). Orange ticks: model cloud base. Blue bars: snowfall as mm of water per 3&nbsp;h (about 1&nbsp;cm of fresh snow per mm).</p></div>
-    <div><h2>Wind</h2><p>Speed at 10&nbsp;m in m/s (left) and knots (right). Arrows point where the wind blows to; letters give where it comes from. Dashed lines mark strong (10&nbsp;m/s) and gale (15&nbsp;m/s). AMPS publishes no gusts.</p></div>
-    <div><h2>Field weather notes</h2><p>The meteogram in words, written automatically by fixed rules from the AMPS numbers, not by a forecaster. Rules follow the <i>International Antarctic Weather Forecasting Handbook</i> (Turner &amp; Pendlebury 2004), section on Maitri and Dakshin Gangotri. Amber: drifting snow (mean wind 20&nbsp;kt or more, 14&nbsp;kt on fresh snow), snow of 0.5&nbsp;mm or more, thick low cloud (poor contrast and horizon), a storm pattern, or pressure falling fast. Red: blowing snow (35&nbsp;kt or more) or whiteout risk (thick cloud with snow or drift). &ldquo;Last run&rdquo; compares the day with the previous AMPS run: a hazard seen in both runs is more trustworthy than one that just appeared.</p></div>
-    <div><h2>AMPS against the station reports</h2><p>Every update compares what this page showed with the 6-hourly reports from Maitri and Novolazarevskaya. The bias tells you how to read the meteogram: for example, if AMPS has run 2&nbsp;°C too cold at night, expect nights about 2&nbsp;°C warmer than shown. It builds up through the season.</p></div>
-    <div><h2>Pressure</h2><p>Sea-level pressure. Red shading marks a fall of 4&nbsp;hPa or more in 12&nbsp;h, often the first sign of a storm or rising wind.</p></div>
+    <div><h2>Temperature</h2><p>Red: 2&nbsp;m air temperature, daily highs and lows. Blue dashes: wind chill. Symbols every 6&nbsp;h: clear, cloud or snow.</p></div>
+    <div><h2>Cloud and snow</h2><p>Grey: likely cloud by altitude (air saturated over ice; right scale). Orange ticks: cloud base. Blue bars: snow, mm of water per 3&nbsp;h (about 1&nbsp;cm of fresh snow per mm).</p></div>
+    <div><h2>Wind</h2><p>10&nbsp;m wind in m/s (left) and knots (right). Arrows show where it blows to; letters, where it comes from. Dashed: strong (10&nbsp;m/s) and gale (15&nbsp;m/s). AMPS has no gusts.</p></div>
+    <div><h2>Field weather notes</h2><p>Amber: drifting snow (20&nbsp;kt; 14&nbsp;kt on fresh snow), snow of 0.5&nbsp;mm or more, thick low cloud, a storm pattern, or a fast pressure fall. Red: blowing snow (35&nbsp;kt) or whiteout risk. &ldquo;Last run&rdquo;: a hazard in two runs in a row is more reliable.</p></div>
+    <div><h2>AMPS against the station reports</h2><p>AMPS at Maitri compared with the Maitri reports (Novolazarevskaya shown too). A steady bias tells you how to read the charts, e.g. nights 2&nbsp;&deg;C too cold.</p></div>
+    <div><h2>Pressure</h2><p>Sea-level pressure. Red: a fall of 4&nbsp;hPa or more in 12&nbsp;h, often the first sign of a storm.</p></div>
   </section>
 
   <details class="fold" id="how-fold">
     <summary>How this page works <span class="hint">where the numbers come from</span></summary>
     <div class="foldbody">
       <ol class="flow">
-        <li><span class="ic" aria-hidden="true">&#127757;</span><div><h3>1. The weather model: AMPS</h3>
-          <p>The Antarctic Mesoscale Prediction System (NCAR, for the US Antarctic Program) runs a weather model tuned for
-          Antarctica on an 8&nbsp;km grid, twice a day, and forecasts 5 days ahead. It is the model most Antarctic forecasters use.</p>
-          <span class="when">new runs at 00 and 12 UTC, online about 10 h later</span></div></li>
+        <li><span class="ic" aria-hidden="true">&#127757;</span><div><h3>1. The model: AMPS</h3>
+          <p>NCAR&rsquo;s weather model tuned for Antarctica: 8&nbsp;km grid, twice a day, 5 days ahead.</p>
+          <span class="when">runs at 00 and 12 UTC, online about 10 h later</span></div></li>
         <li><span class="ic" aria-hidden="true">&#9201;</span><div><h3>2. An automatic job collects it</h3>
-          <p>Every 30 minutes while a new run is due, a small program on GitHub checks for it and downloads only the numbers for the grid point
-          nearest each of our five sites (a few hundred kB, not the gigabytes of the full model).</p>
-          <span class="when">every 30 min, 09:00&ndash;12:00 and 21:00&ndash;00:30 UTC; new runs appear within about half an hour</span></div></li>
-        <li><span class="ic" aria-hidden="true">&#128200;</span><div><h3>3. Charts and field weather notes</h3>
-          <p>For each site it draws the meteogram (temperature, cloud, snow, wind, pressure) and writes the field weather notes (the meteogram in words) by fixed rules
-          from the <i>Antarctic Weather Forecasting Handbook</i>: drifting snow, whiteout risk, storm patterns, falling pressure.
-          It also compares each day with the previous run: a hazard seen in both runs is more trustworthy.
-          <a class="mb" href="https://github.com/vikramonice/minis-weather/blob/main/RULES.md" target="_blank" rel="noopener">Every rule, its source and a worked example &#8599;</a></p></div></li>
+          <p>A GitHub job checks every 30 minutes while a run is due and downloads only the values at the grid points nearest the five sites (a few hundred kB).</p>
+          <span class="when">09:00&ndash;12:00 and 21:00&ndash;00:30 UTC</span></div></li>
+        <li><span class="ic" aria-hidden="true">&#128200;</span><div><h3>3. Charts and field notes</h3>
+          <p>It draws the charts and writes the notes by fixed handbook rules, comparing each day with the previous run.
+          <a class="mb" href="https://github.com/vikramonice/minis-weather/blob/main/RULES.md" target="_blank" rel="noopener">Every rule and its source &#8599;</a></p></div></li>
         <li><span class="ic" aria-hidden="true">&#128269;</span><div><h3>4. A check against real weather</h3>
-          <p>It fetches the 6-hourly reports from Maitri and Novolazarevskaya stations (via Ogimet) and compares them with what AMPS
-          forecast, so you can see how far to trust it, for example "AMPS runs about 3&nbsp;&deg;C too cold".</p></div></li>
+          <p>It compares AMPS with the Maitri and Novolazarevskaya station reports (via Ogimet).</p></div></li>
         <li><span class="ic" aria-hidden="true">&#128241;</span><div><h3>5. This page</h3>
-          <p>The last 8 runs (4 days) are published here, for any phone or laptop. For a second opinion, each site links to the
-          same point on meteoblue (global models, coarser than AMPS). The model is a guide, not a forecast: what you see on site comes first.</p></div></li>
+          <p>The last 8 runs (4 days). Each site also links to meteoblue for a second opinion.</p></div></li>
       </ol>
     </div>
   </details>
 
-  <footer>Data: Antarctic Mesoscale Prediction System (AMPS), NCAR, run for NSF. Values are taken from the nearest 8&nbsp;km grid point. Model output only, not a forecast: gusts are stronger than the mean wind, and conditions on the spot come first.</footer>
+  <footer>Data: AMPS (NCAR, for NSF), nearest 8&nbsp;km grid point.</footer>
 </div>
 
 <script id="runs" type="application/json">__RUNS__</script>
