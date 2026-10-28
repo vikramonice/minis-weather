@@ -334,7 +334,7 @@ footer { font-size: 0.82rem; color: var(--muted); }
     var h = (Date.now() - cycleDate(c).getTime()) / 3.6e6;
     if (h < 0) return { t: "run time in the future", old: true };
     var d = Math.floor(h / 24), hh = Math.round(h - d * 24);
-    return { t: "issued " + (d ? d + " d " : "") + hh + " h ago", old: h > 36 };
+    return { t: "model run started " + (d ? d + " d " : "") + hh + " h ago", old: h > 36 };   // runs reach the server ~10 h after the start
   }
   // AMPS runs start at 00 and 12 UTC and are online about 10 h later (09:20-10:40 / 21:25-22:10 UTC)
   function nextDue(latest) {

@@ -495,7 +495,7 @@ def plot(site, p, rows, cycle, png):
     for k in range(1, len(rows) - 1, 2):
         pr = a["apcp"][k] + a["apcp"][k + 1]
         cond = [q for z, q in rows[k]["prof"] if z - rows[k]["zsfc"] < 6000]
-        cloudy = np.mean([q >= 100 for q in cond]) if cond else 0
+        cloudy = np.mean([q >= 95 for q in cond]) if cond else 0          # same 95 % over ice as the cloud panel and the notes
         sun = sun_elev([t[k]], p["lat"], p["lon"])[0] > 0
         sym, col = (("❄", "#1f6fff") if pr >= 0.2 else ("☁", "#8a8a8a") if cloudy > 0.25
                     else ("☀", "#f2b600") if sun else ("☾", "#333333"))
@@ -518,7 +518,7 @@ def plot(site, p, rows, cycle, png):
     ax[1].set_ylim(0, 9)
     c2 = ax[1].twinx()                     # (twinx resets the host's ticks to the left)
     ax[1].yaxis.tick_right(); ax[1].yaxis.set_label_position("right")
-    ax[1].set_ylabel("Altitude (km)")
+    ax[1].set_ylabel("Altitude above sea level (km)")
     c2.yaxis.tick_left(); c2.yaxis.set_label_position("left")
     pmax = max(1.0, np.nanmax(a["apcp"]) * 1.25)
     c2.bar(tn[1:] - 3 / 48, a["apcp"][1:], width=0.11, color="#0050ff", zorder=6, label="snow (mm water, 3 h)")
