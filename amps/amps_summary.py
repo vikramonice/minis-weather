@@ -182,8 +182,9 @@ def day_summary(day, A, P, prev_label, lead_day, slug):
     if tot < c["snow_trace"]:
         items.append(dict(kind="Snow", text="None expected.", level="ok"))
     else:
-        txt = "%.1f mm water (%s of fresh snow), mainly %s." % (
-            tot, "under 1 cm" if tot < 1 else "about %.0f cm" % tot, hours([t for t, x in zip(ta, pr) if x >= 0.1]))
+        when = hours([t for t, x in zip(ta, pr) if x >= 0.1])
+        txt = "%.1f mm water (%s of fresh snow), %s." % (
+            tot, "under 1 cm" if tot < 1 else "about %.0f cm" % tot, ("mainly " + when) if when else "spread thinly through the day")
         lev = "ok"
         if tot >= c["snow"]:
             lev = "watch"; flags.append("snow")
